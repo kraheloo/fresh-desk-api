@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-FreshDesk API Script
-Retrieves the most recent open ticket from FreshDesk
+FreshDesk API Script - Incidents
+Retrieves the most recent open incident from FreshDesk
 """
 
 import requests
-import base64
 from datetime import datetime
+
 
 # Configuration
 INSTANCE_URL = "axiansnetworkltd.freshservice.com"
@@ -84,8 +84,8 @@ def enrich_ticket_data(ticket):
     lookups = {
         'group_id': ('groups', 'name'),
         'department_id': ('departments', 'name'),
-        'requester_id': ('requesters', 'primary_email'),  # or 'name'
-        'requested_for_id': ('requesters', 'primary_email'),  # or 'name'
+        'requester_id': ('requesters', 'primary_email'),
+        'requested_for_id': ('requesters', 'primary_email'),
         'workspace_id': ('workspaces', 'name'),
     }
     
@@ -135,60 +135,57 @@ def enrich_ticket_data(ticket):
     return enriched
 
 
-def get_recent_open_ticket():
+def get_recent_open_incident():
     """
-    Fetches the most recent open ticket from FreshDesk API
+    Fetches the most recent open incident from FreshService API
     
     Returns:
-        dict: The most recent open ticket data (enriched with display names), or None if no tickets found
+        dict: The most recent open incident data (enriched with display names), or None if no incidents found
     """
     params = {
-        'filter': 'new_and_my_open',  # Filter for open tickets
+        'filter': 'new_and_my_open',
         'order_by': 'created_at',
         'order_type': 'desc',
-        'per_page': 1  # Only get the most recent one
+        'per_page': 100  # Get more to filter by type
     }
     
-    url = f"{API_BASE_URL}/tickets"
-    auth = (API_KEY, 'X')
-    headers = {
-        'Content-Type': 'application/json'
-    }
+    # Use the tickets endpoint
+    data = fetch_api_data('tickets', params)
+    
+    if not data:
+        return None
     
     try:
-        response = requests.get(url, auth=auth, headers=headers, params=params)
-        response.raise_for_status()
-        
-        data = response.json()
-        
         # Handle different response formats
-        ticket = None
+        tickets = []
         if isinstance(data, list):
-            # Response is a list of tickets
-            if len(data) > 0:
-                ticket = data[0]
+            tickets = data
         elif isinstance(data, dict):
-            # Response might be wrapped in a dictionary or be a single ticket
             if 'tickets' in data:
                 tickets = data['tickets']
-                if tickets and len(tickets) > 0:
-                    ticket = tickets[0]
             else:
-                # Single ticket object
-                ticket = data
+                tickets = [data]
         
-        # Enrich ticket with display names
-        if ticket:
-            return enrich_ticket_data(ticket)
+        # Filter for Incidents only (exclude Service Requests)
+        incidents = []
+        for ticket in tickets:
+            ticket_type = ticket.get('type', '')
+            
+            # Filter for incidents only
+            if ticket_type and 'incident' in ticket_type.lower():
+                incidents.append(ticket)
+        
+        # If we found incidents, return the first (most recent)
+        if incidents:
+            return enrich_ticket_data(incidents[0])
+        
+        # If no specific incidents found
+        print(f"Note: Found {len(tickets)} ticket(s), but no incidents.")
+        if tickets:
+            print(f"First ticket type: {tickets[0].get('type', 'Unknown')}")
         
         return None
             
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching tickets: {e}")
-        if hasattr(e, 'response') and e.response is not None:
-            print(f"Response status code: {e.response.status_code}")
-            print(f"Response content: {e.response.text}")
-        return None
     except Exception as e:
         print(f"Unexpected error: {e}")
         print(f"Response type: {type(data)}")
@@ -196,59 +193,59 @@ def get_recent_open_ticket():
         return None
 
 
-def format_ticket_info(ticket):
+def format_incident_info(incident):
     """
-    Formats ticket information for display
+    Formats incident information for display
     
     Args:
-        ticket (dict): Ticket data from API
+        incident (dict): Incident data from API
         
     Returns:
-        str: Formatted ticket information
+        str: Formatted incident information
     """
-    if not ticket:
-        return "No open tickets found."
+    if not incident:
+        return "No open incidents found."
     
-    ticket_info = f"""
+    incident_info = f"""
 ╔══════════════════════════════════════════════════════════════
-║ MOST RECENT OPEN TICKET
+║ MOST RECENT OPEN INCIDENT
 ╠══════════════════════════════════════════════════════════════
-║ Ticket ID:        {ticket.get('id', 'N/A')}
-║ Subject:          {ticket.get('subject', 'N/A')}
+║ Incident ID:      {incident.get('id', 'N/A')}
+║ Subject:          {incident.get('subject', 'N/A')}
 ║ 
-║ Status:           {ticket.get('status_name', ticket.get('status', 'N/A'))}
-║ Priority:         {ticket.get('priority_name', ticket.get('priority', 'N/A'))}
-║ Source:           {ticket.get('source_name', ticket.get('source', 'N/A'))}
+║ Status:           {incident.get('status_name', incident.get('status', 'N/A'))}
+║ Priority:         {incident.get('priority_name', incident.get('priority', 'N/A'))}
+║ Source:           {incident.get('source_name', incident.get('source', 'N/A'))}
 ║ 
-║ Requester:        {ticket.get('requester_id_name', ticket.get('requester_id', 'N/A'))}
-║ Requested For:    {ticket.get('requested_for_id_name', ticket.get('requested_for_id', 'N/A'))}
-║ Group:            {ticket.get('group_id_name', ticket.get('group_id', 'N/A'))}
-║ Department:       {ticket.get('department_id_name', ticket.get('department_id', 'N/A'))}
-║ Workspace:        {ticket.get('workspace_id_name', ticket.get('workspace_id', 'N/A'))}
+║ Requester:        {incident.get('requester_id_name', incident.get('requester_id', 'N/A'))}
+║ Requested For:    {incident.get('requested_for_id_name', incident.get('requested_for_id', 'N/A'))}
+║ Group:            {incident.get('group_id_name', incident.get('group_id', 'N/A'))}
+║ Department:       {incident.get('department_id_name', incident.get('department_id', 'N/A'))}
+║ Workspace:        {incident.get('workspace_id_name', incident.get('workspace_id', 'N/A'))}
 ║ 
-║ Created At:       {ticket.get('created_at', 'N/A')}
-║ Updated At:       {ticket.get('updated_at', 'N/A')}
+║ Created At:       {incident.get('created_at', 'N/A')}
+║ Updated At:       {incident.get('updated_at', 'N/A')}
 ║ 
-║ Description:      {ticket.get('description_text', ticket.get('description', 'N/A'))[:80]}...
+║ Description:      {incident.get('description_text', incident.get('description', 'N/A'))[:80]}...
 ╚══════════════════════════════════════════════════════════════
 """
-    return ticket_info
+    return incident_info
 
 
 def main():
     """Main execution function"""
-    print("Fetching most recent open ticket from FreshDesk...")
+    print("Fetching most recent open incident from FreshService...")
     print(f"Instance: {INSTANCE_URL}\n")
     
-    ticket = get_recent_open_ticket()
+    incident = get_recent_open_incident()
     
-    if ticket:
-        print(format_ticket_info(ticket))
-        print("\nFull ticket data:")
+    if incident:
+        print(format_incident_info(incident))
+        print("\nFull incident data:")
         import json
-        print(json.dumps(ticket, indent=2))
+        print(json.dumps(incident, indent=2))
     else:
-        print("No open tickets found or error occurred.")
+        print("No open incidents found or error occurred.")
 
 
 if __name__ == "__main__":
