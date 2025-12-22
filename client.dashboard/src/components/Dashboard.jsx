@@ -109,8 +109,8 @@ function Dashboard({ data, selectedUser, days }) {
           <h3>Accessible Departments ({accessibleDepartments.length})</h3>
           <div className="departments-list">
             {accessibleDepartments.map((dept) => (
-              <div key={dept.id} className="department-tag">
-                {dept.name}
+              <div key={dept.departmentId} className="department-tag">
+                {dept.departmentName}
               </div>
             ))}
           </div>
