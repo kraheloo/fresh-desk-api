@@ -19,5 +19,5 @@ dist/
 
 # Environment variables
 .env
-ServiceDeskDashboard.API/obj/**
-ServiceDeskDashboard.API/bin/**
+backend.api/obj/**
+backend.api/bin/**
