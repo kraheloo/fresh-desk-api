@@ -3,21 +3,21 @@ using ServiceDeskDashboard.API.Models.DTOs;
 
 namespace ServiceDeskDashboard.API.Services;
 
-public interface IIncidentService
+public interface IDataService
 {
     Task<IncidentCountsResponse> GetIncidentCountsAsync(string? username, int days = 30);
 }
 
-public class IncidentService : IIncidentService
+public class DataService : IDataService
 {
     private readonly IFreshServiceClient _freshServiceClient;
     private readonly ICsvDataService _csvDataService;
-    private readonly ILogger<IncidentService> _logger;
+    private readonly ILogger<DataService> _logger;
 
-    public IncidentService(
+    public DataService(
         IFreshServiceClient freshServiceClient,
         ICsvDataService csvDataService,
-        ILogger<IncidentService> logger)
+        ILogger<DataService> logger)
     {
         _freshServiceClient = freshServiceClient;
         _csvDataService = csvDataService;
@@ -59,10 +59,22 @@ public class IncidentService : IIncidentService
                                            t.UpdatedAt.HasValue &&
                                            t.UpdatedAt.Value >= cutoffDate).ToList();
 
-        // Apply department filter if needed
+        // Filter and count service requests
+        var serviceRequests = tickets.Where(t => t.Type == "Service Request" && 
+                                           t.UpdatedAt.HasValue &&
+                                           t.UpdatedAt.Value >= cutoffDate).ToList();
+
+        // Apply department filter if needed for incidents
         if (allowedDeptIds != null && allowedDeptIds.Any())
         {
             incidents = incidents.Where(i => i.DepartmentId.HasValue && 
+                                            allowedDeptIds.Contains(i.DepartmentId.Value)).ToList();
+        }
+
+        // Apply department filter if needed for service requests
+        if (allowedDeptIds != null && allowedDeptIds.Any())
+        {
+            serviceRequests = serviceRequests.Where(i => i.DepartmentId.HasValue && 
                                             allowedDeptIds.Contains(i.DepartmentId.Value)).ToList();
         }
 

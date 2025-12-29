@@ -41,7 +41,7 @@ export const serviceDeskApi = {
     }
     params.append('days', days.toString());
 
-    const response = await apiClient.get(`/api/incidents/counts?${params.toString()}`);
+    const response = await apiClient.get(`/api/data/counts?${params.toString()}`);
     return response.data;
   },
 };

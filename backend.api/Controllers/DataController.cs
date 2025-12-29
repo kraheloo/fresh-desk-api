@@ -6,14 +6,14 @@ namespace ServiceDeskDashboard.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class IncidentsController : ControllerBase
+public class DataController : ControllerBase
 {
-    private readonly IIncidentService _incidentService;
-    private readonly ILogger<IncidentsController> _logger;
+    private readonly IDataService _dataService;
+    private readonly ILogger<DataController> _logger;
 
-    public IncidentsController(IIncidentService incidentService, ILogger<IncidentsController> logger)
+    public DataController(IDataService dataService, ILogger<DataController> logger)
     {
-        _incidentService = incidentService;
+        _dataService = dataService;
         _logger = logger;
     }
 
@@ -31,7 +31,7 @@ public class IncidentsController : ControllerBase
                 return BadRequest("Days must be between 1 and 365");
             }
 
-            var result = await _incidentService.GetIncidentCountsAsync(username, days);
+            var result = await _dataService.GetIncidentCountsAsync(username, days);
             return Ok(result);
         }
         catch (Exception ex)
