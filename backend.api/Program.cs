@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
 // Register services
 builder.Services.AddSingleton<ICsvDataService, CsvDataService>();
 builder.Services.AddHttpClient<IFreshServiceClient, FreshServiceClient>();
-builder.Services.AddScoped<IIncidentService, IncidentService>();
+builder.Services.AddScoped<IDataService, DataService>();
 
 var app = builder.Build();
 

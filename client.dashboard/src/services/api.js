@@ -29,19 +29,19 @@ export const serviceDeskApi = {
   },
 
   /**
-   * Get incident counts for a user
+   * Get metrics for a user (incidents and service requests)
    * @param {string} username - The username to get metrics for
    * @param {number} days - Number of days to look back (default: 30)
-   * @returns {Promise<Object>} Incident counts and metrics
+   * @returns {Promise<Object>} DataMetricsResponse with incident and service counts
    */
-  getIncidentCounts: async (username, days = 30) => {
+  getMetrics: async (username, days = 30) => {
     const params = new URLSearchParams();
     if (username) {
       params.append('username', username);
     }
     params.append('days', days.toString());
 
-    const response = await apiClient.get(`/api/incidents/counts?${params.toString()}`);
+    const response = await apiClient.get(`/api/data/counts?${params.toString()}`);
     return response.data;
   },
 };

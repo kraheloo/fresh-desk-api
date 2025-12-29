@@ -7,7 +7,7 @@ import { serviceDeskApi } from './services/api'
 function App() {
   const [users, setUsers] = useState([])
   const [selectedUser, setSelectedUser] = useState('')
-  const [incidentData, setIncidentData] = useState(null)
+  const [metricsData, setMetricsData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [days, setDays] = useState(30)
@@ -25,28 +25,28 @@ function App() {
     loadUsers()
   }, [])
 
-  // Load incident data when user or days changes
+  // Load metrics data when user or days changes
   useEffect(() => {
     if (!selectedUser) {
-      setIncidentData(null)
+      setMetricsData(null)
       return
     }
 
-    const loadIncidentData = async () => {
+    const loadMetricsData = async () => {
       setLoading(true)
       setError(null)
       try {
-        const data = await serviceDeskApi.getIncidentCounts(selectedUser, days)
-        setIncidentData(data)
+        const data = await serviceDeskApi.getMetrics(selectedUser, days)
+        setMetricsData(data)
       } catch (err) {
-        setError('Failed to load incident data: ' + err.message)
-        setIncidentData(null)
+        setError('Failed to load metrics data: ' + err.message)
+        setMetricsData(null)
       } finally {
         setLoading(false)
       }
     }
 
-    loadIncidentData()
+    loadMetricsData()
   }, [selectedUser, days])
 
   return (
@@ -88,15 +88,15 @@ function App() {
       {loading && (
         <div className="loading">
           <div className="spinner"></div>
-          <p>Loading incident data...</p>
+          <p>Loading metrics data...</p>
         </div>
       )}
 
-      {!loading && !error && incidentData && (
-        <Dashboard data={incidentData} selectedUser={selectedUser} days={days} />
+      {!loading && !error && metricsData && (
+        <Dashboard data={metricsData} selectedUser={selectedUser} days={days} />
       )}
 
-      {!loading && !error && !incidentData && selectedUser && (
+      {!loading && !error && !metricsData && selectedUser && (
         <div className="no-data">
           <p>No data available for the selected user and time range.</p>
         </div>
@@ -105,7 +105,7 @@ function App() {
       {!selectedUser && (
         <div className="welcome">
           <h2>Welcome to the Service Desk Dashboard</h2>
-          <p>Select a user from the dropdown above to view their incident metrics.</p>
+          <p>Select a user from the dropdown above to view their incident and service request metrics.</p>
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 # Service Desk Dashboard - Full Stack Application
 
-A modern web application for monitoring and analyzing FreshService incidents with user-based access control.
+A modern web application for monitoring and analyzing FreshService incidents and service requests with user-based access control.
 
 ## Architecture
 
@@ -13,21 +13,43 @@ A modern web application for monitoring and analyzing FreshService incidents wit
 
 ```
 fresh-desk-api/
-├── ServiceDeskDashboard.API/       # .NET Backend
+├── backend.api/                    # .NET Backend
 │   ├── Controllers/                # API endpoints
+│   │   ├── DataController.cs      # Main data endpoint
+│   │   └── UsersController.cs     # User management
 │   ├── Models/                     # Data models and DTOs
+│   │   ├── Models.cs              # Core models
+│   │   └── DTOs/
+│   │       └── ResponseDTOs.cs    # API response DTOs
 │   ├── Services/                   # Business logic
-│   └── appsettings.json           # Configuration
-├── service-desk-dashboard/         # React Frontend
+│   │   ├── DataService.cs         # Main data aggregation service
+│   │   ├── FreshServiceClient.cs  # FreshService API client
+│   │   └── CsvDataService.cs      # CSV data handling
+│   ├── appsettings.json           # Configuration
+│   └── Program.cs                 # Application startup
+├── client.dashboard/               # React Frontend
 │   ├── src/
 │   │   ├── components/            # UI components
+│   │   │   ├── Dashboard.jsx      # Main dashboard
+│   │   │   ├── MetricCard.jsx     # Metric display cards
+│   │   │   ├── ResolutionChart.jsx # Resolution rate chart
+│   │   │   ├── StatusBreakdown.jsx # Status bar chart
+│   │   │   └── UserSelector.jsx   # User dropdown
 │   │   ├── services/              # API client
-│   │   └── App.jsx                # Main app
-│   └── package.json
-└── data/                          # CSV data files
-    ├── departments.csv
-    ├── perimeters.csv
-    └── acl.csv
+│   │   │   └── api.js             # Axios API service
+│   │   ├── App.jsx                # Main app component
+│   │   └── main.jsx               # App entry point
+│   ├── package.json
+│   └── vite.config.js
+├── data/                          # CSV data files
+│   ├── departments.csv            # Department mappings
+│   ├── perimeters.csv             # Perimeter to department mappings
+│   └── acl.csv                    # User access control list
+├── scripts/                       # Python utility scripts
+│   ├── get_users.py              # Fetch users from FreshService
+│   ├── get_incident_counts.py   # Test incident queries
+│   └── requirements.txt          # Python dependencies
+└── archive/                       # Legacy Python implementation
 ```
 
 ## Features
@@ -35,26 +57,25 @@ fresh-desk-api/
 ### Backend API
 
 - **GET /api/users** - Retrieve all users from ACL
-- **GET /api/incidents/counts** - Get incident metrics with ACL filtering
+- **GET /api/data/counts** - Get incident and service request metrics with ACL filtering
   - Query parameters:
     - `username` (optional): Filter by user
     - `days` (default: 30): Time range in days
+  - Returns: `DataMetricsResponse` with both incident and service request counts
 
 ### Frontend Dashboard
 
 - User selection dropdown (populated from ACL)
 - Time range selector (7, 14, 30, 60, 90 days)
-- Metric cards:
-  - Total tickets
-  - Open incidents
-  - Pending incidents
-  - Resolved incidents
-  - Closed incidents
-  - Open + Pending (highlighted if > 0)
-- Charts:
+- **Incident Metrics Section**:
+  - Metric cards (Total, Open, Pending, Resolved, Closed, Open+Pending)
   - Resolution rate pie chart
   - Status breakdown bar chart
-- Department access list
+  - Accessible departments list
+- **Service Request Metrics Section**:
+  - Metric cards (Total, Open, Pending, Resolved, Closed, Open+Pending)
+  - Resolution rate pie chart
+  - Status breakdown bar chart
 
 ### Access Control
 
@@ -72,33 +93,39 @@ Two levels of access:
 
 ### 1. Configure Backend
 
-Edit `ServiceDeskDashboard.API/appsettings.json`:
+Edit `backend.api/appsettings.json`:
 
 ```json
 {
   "FreshService": {
-    "BaseUrl": "https://axiansnetworkltd.freshservice.com",
+    "BaseUrl": "https://your-domain.freshservice.com",
     "ApiKey": "YOUR_API_KEY_HERE"
   },
   "CsvFiles": {
     "DepartmentsPath": "../data/departments.csv",
     "PerimetersPath": "../data/perimeters.csv",
     "AclPath": "../data/acl.csv"
-  }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information"
+    }
+  },
+  "AllowedHosts": "*"
 }
 ```
 
 ### 2. Install Backend Dependencies
 
 ```bash
-cd ServiceDeskDashboard.API
+cd backend.api
 dotnet restore
 ```
 
 ### 3. Install Frontend Dependencies
 
 ```bash
-cd service-desk-dashboard
+cd client.dashboard
 npm install
 ```
 
@@ -107,9 +134,11 @@ npm install
 ### Start Backend API
 
 ```bash
-cd ServiceDeskDashboard.API
+cd backend.api
 dotnet run
 ```
+
+Or use the VS Code task: `build` or `watch`
 
 The API will be available at:
 - HTTP: http://localhost:5000
@@ -119,7 +148,7 @@ The API will be available at:
 ### Start Frontend
 
 ```bash
-cd service-desk-dashboard
+cd client.dashboard
 npm run dev
 ```
 
@@ -129,8 +158,14 @@ The frontend will be available at: http://localhost:5173
 
 1. Open http://localhost:5173 in your browser
 2. Select a user from the dropdown
-3. Choose a time range
-4. View incident metrics and charts
+3. Choose a time range (7-90 days)
+4. View incident metrics in the first section
+5. View service request metrics in the second section
+6. Each section shows:
+   - Total counts by status
+   - Resolution rate visualization
+   - Status breakdown chart
+   - Accessible departments (incidents only)
 
 ## API Endpoints
 
@@ -144,33 +179,56 @@ Response:
 ```json
 [
   {
-    "username": "john.doe",
-    "accessLevel": "Perimeter"
+    "username": "john.doe"
   }
 ]
 ```
 
-### Get Incident Counts
+### Get Data Metrics
 
 ```
-GET /api/incidents/counts?username=john.doe&days=30
+GET /api/data/counts?username=john.doe&days=30
 ```
 
 Response:
 ```json
 {
-  "totalOpen": 5,
-  "totalPending": 3,
-  "totalResolved": 15,
-  "totalClosed": 10,
-  "totalOpenAndPending": 8,
-  "resolutionRate": 75.8,
-  "accessibleDepartments": [
-    {
-      "id": 123,
-      "name": "IT Support"
-    }
-  ]
+  "incidentCounts": {
+    "totalOpen": 5,
+    "totalPending": 3,
+    "totalResolved": 15,
+    "totalClosed": 10,
+    "totalOpenAndPending": 8,
+    "resolutionRate": 75.8,
+    "days": 30,
+    "username": "john.doe",
+    "departmentFilterApplied": true,
+    "generatedAt": "2025-12-29T10:30:00Z",
+    "accessibleDepartments": [
+      {
+        "departmentId": 123,
+        "departmentName": "IT Support"
+      }
+    ]
+  },
+  "serviceCounts": {
+    "totalOpen": 8,
+    "totalPending": 5,
+    "totalResolved": 20,
+    "totalClosed": 15,
+    "totalOpenAndPending": 13,
+    "resolutionRate": 72.9,
+    "days": 30,
+    "username": "john.doe",
+    "departmentFilterApplied": true,
+    "generatedAt": "2025-12-29T10:30:00Z",
+    "accessibleDepartments": [
+      {
+        "departmentId": 123,
+        "departmentName": "IT Support"
+      }
+    ]
+  }
 }
 ```
 
@@ -179,14 +237,16 @@ Response:
 ### Backend Development
 
 ```bash
-cd ServiceDeskDashboard.API
+cd backend.api
 dotnet watch run
 ```
+
+Or use VS Code tasks for building/watching.
 
 ### Frontend Development
 
 ```bash
-cd service-desk-dashboard
+cd client.dashboard
 npm run dev
 ```
 
@@ -197,14 +257,14 @@ Hot reload is enabled for both backend and frontend.
 ### Backend
 
 ```bash
-cd ServiceDeskDashboard.API
+cd backend.api
 dotnet publish -c Release -o ./publish
 ```
 
 ### Frontend
 
 ```bash
-cd service-desk-dashboard
+cd client.dashboard
 npm run build
 ```
 
@@ -214,11 +274,13 @@ The production build will be in the `dist/` folder.
 
 ### Frontend
 
-Create `.env` in `service-desk-dashboard/`:
+Create `.env` in `client.dashboard/`:
 
 ```
 VITE_API_URL=http://localhost:5000
 ```
+
+For production, update this to your API URL.
 
 ## Troubleshooting
 
@@ -228,31 +290,59 @@ The backend is configured to allow requests from:
 - http://localhost:3000
 - http://localhost:5173
 
-If using a different port, update the CORS policy in `Program.cs`.
+If using a different port, update the CORS policy in [Program.cs](backend.api/Program.cs).
 
 ### CSV File Path Issues
 
-Ensure the CSV file paths in `appsettings.json` are correct relative to the API project directory.
+Ensure the CSV file paths in [appsettings.json](backend.api/appsettings.json) are correct relative to the API project directory.
 
 ### API Connection Failed
 
 1. Verify the backend is running on port 5000
-2. Check the API URL in frontend (default: http://localhost:5000)
+2. Check the API URL in frontend `.env` file (default: http://localhost:5000)
 3. Check browser console for CORS errors
+4. Verify FreshService API key in `appsettings.json`
+
+### Data Not Updating After Code Changes
+
+1. Rebuild the backend: `dotnet build` in `backend.api/`
+2. Restart both backend and frontend servers
+3. Clear browser cache if needed
+
+### Charts Showing Same Values
+
+Ensure the backend is rebuilt after any changes to `DataService.cs` so that the service request calculations are included.
 
 ## Technologies
 
 ### Backend
 - .NET 8.0
 - ASP.NET Core Web API
-- CsvHelper 30.0.1
-- Swashbuckle (Swagger)
+- CsvHelper (for CSV parsing)
+- Swashbuckle (Swagger/OpenAPI documentation)
 
 ### Frontend
 - React 18.2
 - Vite 5.0
-- Axios 1.6
-- Recharts 2.10
+- Axios 1.6 (HTTP client)
+- Recharts 2.10 (charting library)
+
+## Data Models
+
+### Ticket Types
+- **Incident**: Issues that need fixing
+- **Service Request**: User requests for services
+
+### Ticket Status Codes
+- **2**: Open
+- **3**: Pending
+- **4**: Resolved
+- **5**: Closed
+
+### Access Control
+- Users in `acl.csv` can have access via:
+  - **Perimeter**: Access to all departments under a perimeter
+  - **Department**: Access to a specific department
 
 ## License
 
