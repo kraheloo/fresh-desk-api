@@ -5,7 +5,7 @@ namespace ServiceDeskDashboard.API.Services;
 
 public interface IDataService
 {
-    Task<IncidentCountsResponse> GetIncidentCountsAsync(string? username, int days = 30);
+    Task<DataMetricsResponse> GetCountsAsync(string? username, int days = 30);
 }
 
 public class DataService : IDataService
@@ -24,7 +24,7 @@ public class DataService : IDataService
         _logger = logger;
     }
 
-    public async Task<IncidentCountsResponse> GetIncidentCountsAsync(string? username, int days = 30)
+    public async Task<DataMetricsResponse> GetCountsAsync(string? username, int days = 30)
     {
         _logger.LogInformation("Getting incident counts for user: {Username}, days: {Days}", username ?? "ALL", days);
 
@@ -90,7 +90,8 @@ public class DataService : IDataService
         var totalResolvedAndClosed = totalResolved + totalClosed;
         var resolutionRate = totalTickets > 0 ? (double)totalResolvedAndClosed / totalTickets * 100 : 0;
 
-        return new IncidentCountsResponse
+        var dataMetrics = new DataMetricsResponse();
+        dataMetrics.IncidentCounts = new IncidentCountsResponse
         {
             TotalOpen = totalOpen,
             TotalPending = totalPending,
@@ -104,5 +105,33 @@ public class DataService : IDataService
             GeneratedAt = DateTime.UtcNow,
             AccessibleDepartments = accessibleDepartments
         };
+
+        // Count service requests by status
+        var srTotalOpen = serviceRequests.Count(sr => sr.Status == 2);
+        var srTotalPending = serviceRequests.Count(sr => sr.Status == 3);
+        var srTotalResolved = serviceRequests.Count(sr => sr.Status == 4);
+        var srTotalClosed = serviceRequests.Count(sr => sr.Status == 5);
+        var srTotalOpenAndPending = srTotalOpen + srTotalPending;
+        
+        var srTotalTickets = serviceRequests.Count;
+        var srTotalResolvedAndClosed = srTotalResolved + srTotalClosed;
+        var srResolutionRate = srTotalTickets > 0 ? (double)srTotalResolvedAndClosed / srTotalTickets * 100 : 0;
+
+        dataMetrics.ServiceCounts = new ServiceCountsResponse
+        {
+            TotalOpen = srTotalOpen,
+            TotalPending = srTotalPending,
+            TotalResolved = srTotalResolved,
+            TotalClosed = srTotalClosed,
+            TotalOpenAndPending = srTotalOpenAndPending,
+            ResolutionRate = Math.Round(srResolutionRate, 1),
+            Days = days,
+            Username = username,
+            DepartmentFilterApplied = allowedDeptIds != null && allowedDeptIds.Any(),
+            GeneratedAt = DateTime.UtcNow,
+            AccessibleDepartments = accessibleDepartments
+        };
+
+        return dataMetrics;
     }
 }

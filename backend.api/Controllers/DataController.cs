@@ -31,7 +31,7 @@ public class DataController : ControllerBase
                 return BadRequest("Days must be between 1 and 365");
             }
 
-            var result = await _dataService.GetIncidentCountsAsync(username, days);
+            var result = await _dataService.GetCountsAsync(username, days);
             return Ok(result);
         }
         catch (Exception ex)
