@@ -39,4 +39,10 @@ public class FreshServiceTicket
     
     [JsonPropertyName("updated_at")]
     public DateTime? UpdatedAt { get; set; }
+    
+    [JsonPropertyName("subject")]
+    public string? Subject { get; set; }
+    
+    [JsonPropertyName("created_at")]
+    public DateTime? CreatedAt { get; set; }
 }

@@ -1,0 +1,144 @@
+.ticket-table-container {
+  margin: 2rem 0;
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-table-container h3 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1.25rem;
+}
+
+.ticket-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.ticket-table thead {
+  background: #f8f9fa;
+}
+
+.ticket-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.ticket-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+
+.ticket-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.ticket-table td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+
+.ticket-id {
+  font-weight: 600;
+  color: #646cff;
+  font-family: 'Monaco', 'Courier New', monospace;
+  white-space: nowrap;
+}
+
+.ticket-subject {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #495057;
+}
+
+.ticket-date {
+  color: #6c757d;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.status-open {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-pending {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.status-resolved {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.status-closed {
+  background-color: #f5f5f5;
+  color: #616161;
+}
+
+.ticket-link {
+  color: #646cff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ticket-link:hover {
+  color: #535bf2;
+  text-decoration: underline;
+}
+
+.ticket-table-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #6c757d;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.ticket-table-empty p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .ticket-table-container {
+    overflow-x: auto;
+    padding: 1rem;
+  }
+
+  .ticket-table {
+    font-size: 0.85rem;
+  }
+
+  .ticket-table th,
+  .ticket-table td {
+    padding: 0.5rem;
+  }
+
+  .ticket-subject {
+    max-width: 150px;
+  }
+}

@@ -18,6 +18,20 @@ public class DataMetricsResponse
 }
 
 /// <summary>
+/// DTO for ticket details
+/// </summary>
+public class TicketDto
+{
+    public long Id { get; set; }
+    public string? Subject { get; set; }
+    public int Status { get; set; }
+    public string StatusName { get; set; } = string.Empty;
+    public DateTime? CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public string? Url { get; set; }
+}
+
+/// <summary>
 /// DTO for incident counts response
 /// </summary>
 public class IncidentCountsResponse
@@ -33,6 +47,7 @@ public class IncidentCountsResponse
     public bool DepartmentFilterApplied { get; set; }
     public DateTime GeneratedAt { get; set; }
     public List<DepartmentAccessDto> AccessibleDepartments { get; set; } = new();
+    public List<TicketDto> OldestOpenTickets { get; set; } = new();
 }
 
 /// <summary>
@@ -51,6 +66,7 @@ public class ServiceCountsResponse
     public bool DepartmentFilterApplied { get; set; }
     public DateTime GeneratedAt { get; set; }
     public List<DepartmentAccessDto> AccessibleDepartments { get; set; } = new();
+    public List<TicketDto> OldestOpenTickets { get; set; } = new();
 }
 
 /// <summary>

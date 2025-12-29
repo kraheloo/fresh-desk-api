@@ -1,6 +1,7 @@
 import MetricCard from './MetricCard'
 import ResolutionChart from './ResolutionChart'
 import StatusBreakdown from './StatusBreakdown'
+import TicketTable from './TicketTable'
 import './Dashboard.css'
 
 function Dashboard({ data, selectedUser, days }) {
@@ -15,7 +16,8 @@ function Dashboard({ data, selectedUser, days }) {
       totalClosed,
       totalOpenAndPending,
       resolutionRate,
-      accessibleDepartments
+      accessibleDepartments,
+      oldestOpenTickets
     } = metricsData
 
     const totalTickets = totalOpen + totalPending + totalResolved + totalClosed
@@ -109,6 +111,11 @@ function Dashboard({ data, selectedUser, days }) {
             />
           </div>
         </div>
+
+        <TicketTable 
+          tickets={oldestOpenTickets} 
+          type={sectionKey === 'incidents' ? 'Incidents' : 'Service Requests'} 
+        />
 
         {sectionKey === 'service-requests' && accessibleDepartments && accessibleDepartments.length > 0 && (
           <div className="departments-section">
