@@ -53,7 +53,8 @@ public class FreshServiceClient : IFreshServiceClient
             try
             {
                 // Remove leading slash since BaseAddress now has trailing slash
-                var url = $"tickets?per_page={perPage}&page={page}&updated_since={updatedSinceStr}";
+                // Include fields parameter to ensure we get subject and other required fields
+                var url = $"tickets?per_page={perPage}&page={page}&updated_since={updatedSinceStr}&include=requester,stats";
                 _logger.LogInformation("Requesting URL: {BaseAddress}{Url}", _httpClient.BaseAddress, url);
                 var response = await _httpClient.GetAsync(url);
                 
