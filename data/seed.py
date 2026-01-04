@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.engine import Engine
 from contextlib import contextmanager
 import logging
+from models import Department, Perimeter, ACL
 
 # Configure logging
 logging.basicConfig(
@@ -317,6 +318,117 @@ class CSVLoader:
             'acls': self.load_acls()
         }
 
+
+class TransactionManager:
+    """Manages database transactions and data insertion."""
+    
+    def __init__(self, db_connection: DatabaseConnection):
+        """
+        Initialize transaction manager.
+        
+        Args:
+            db_connection: DatabaseConnection instance
+        """
+        self.db = db_connection
+        self.inserted_counts = {
+            'departments': 0,
+            'perimeters': 0,
+            'acls': 0
+        }
+    
+    def insert_departments(self, departments: List[Dict[str, Any]]) -> int:
+        """
+        Insert departments into database.
+        
+        Args:
+            departments: List of department dictionaries
+            
+        Returns:
+            Number of departments inserted
+            
+        Raises:
+            Exception: If insertion fails
+        """
+        inserted = 0
+        skipped = 0
+        
+        try:
+            with self.db.session_scope() as session:
+                for dept in departments:
+                    try:
+                        # Check if department already exists
+                        existing = session.query(Department).filter_by(id=dept['id']).first()
+                        
+                        if existing:
+                            logger.debug(f"Skipping duplicate department ID: {dept['id']}")
+                            skipped += 1
+                            continue
+                        
+                        # Create new department
+                        department = Department(
+                            id=dept['id'],
+                            name=dept['name']
+                        )
+                        
+                        session.add(department)
+                        inserted += 1
+                        
+                    except Exception as e:
+                        logger.warning(f"Failed to insert department {dept}: {e}")
+                        skipped += 1
+                        continue
+            
+            self.inserted_counts['departments'] = inserted
+            logger.info(f"✓ Inserted {inserted} departments ({skipped} skipped)")
+            return inserted
+            
+        except Exception as e:
+            logger.error(f"✗ Transaction failed for departments: {e}")
+            raise
+    
+    def insert_perimeters(self, perimeters: List[Dict[str, Any]]) -> int:
+        """
+        Insert perimeters into database.
+        
+        Args:
+            perimeters: List of perimeter dictionaries
+            
+        Returns:
+            Number of perimeters inserted
+        """
+        # TODO: Implement perimeter insertion
+        logger.info("Perimeter insertion not yet implemented")
+        return 0
+    
+    def insert_acls(self, acls: List[Dict[str, Any]]) -> int:
+        """
+        Insert ACLs into database.
+        
+        Args:
+            acls: List of ACL dictionaries
+            
+        Returns:
+            Number of ACLs inserted
+        """
+        # TODO: Implement ACL insertion
+        logger.info("ACL insertion not yet implemented")
+        return 0
+    
+    def get_summary(self) -> str:
+        """
+        Get summary of inserted records.
+        
+        Returns:
+            Summary string
+        """
+        return (
+            f"Insertion Summary:\n"
+            f"  Departments: {self.inserted_counts['departments']}\n"
+            f"  Perimeters:  {self.inserted_counts['perimeters']}\n"
+            f"  ACLs:        {self.inserted_counts['acls']}"
+        )
+
+
 def main():
     """Main entry point."""
     try:
@@ -327,6 +439,9 @@ def main():
 
         csvHelper = CSVLoader(data_dir="data")
         data = csvHelper.load_all()
+
+        transactionManager = TransactionManager(db)
+        transactionManager.insert_departments(data['departments'])
 
         logger.info("Loaded CSV data for keys: %s", data.keys())
         
