@@ -35,7 +35,7 @@ def main():
         transactionManager = TransactionManager(db)
         transactionManager.insert_departments(data['departments'])
         transactionManager.insert_perimeters(data['perimeters'])
-        #transactionManager.insert_acls(data['acls'])        
+        transactionManager.insert_acls(data['acls'])        
         
     except Exception as e:
         logger.error(f"Fatal error: {e}")

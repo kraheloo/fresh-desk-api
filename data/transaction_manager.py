@@ -157,7 +157,7 @@ class TransactionManager:
                         acl = session.query(ACL).filter_by(user_id=acl_data['user']).first()
                         
                         if acl:
-                            logger.debug(f"Skipping duplicate ACL ID: {acl_data['id']}")
+                            logger.debug(f"Skipping duplicate ACL User: {acl_data['user']}")
                             skipped += 1                            
                         else:
                             # Create new ACL
@@ -170,6 +170,7 @@ class TransactionManager:
                                 acl.department_id = acl_data['id']
                     
                         # Handle ACL-perimeter association (one per ACL)
+                        '''
                         perm_id = acl_data['perimeter_id']
                         if perm_id:
                             perimeter = session.query(Perimeter).filter_by(id=perm_id).first()
@@ -179,6 +180,7 @@ class TransactionManager:
                                 logger.warning(f"Perimeter (perimeter_id) {perm_id} not found for ACL {acl_data['id']}")
                         else:
                             logger.warning(f"No perimeter_id found for ACL {acl_data['id']}")
+                        '''
                         
                         session.add(acl)
                         inserted += 1
