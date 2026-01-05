@@ -1,5 +1,5 @@
 """SQLAlchemy models for the platform database."""
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Boolean, Float
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Boolean, Float, Table
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
@@ -7,6 +7,14 @@ from sqlalchemy.orm import relationship
 import uuid
 
 Base = declarative_base()
+
+"""Association table for Perimeter-Department many-to-many relationship."""
+perimeter_departments = Table(
+    'perimeter_departments',
+    Base.metadata,
+    Column('perimeter_id', Integer, ForeignKey('perimeters.id'), primary_key=True),
+    Column('department_id', Float, ForeignKey('departments.id'), primary_key=True)
+)
 
 """Organisation model."""
 class Department(Base):    
@@ -16,10 +24,9 @@ class Department(Base):
 
 class Perimeter(Base):
     __tablename__ = 'perimeters'
-    id = Column(Integer, primary_key=True, autoincrement=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
-    department_id = Column(Float, ForeignKey('departments.id'), nullable=False)
-    department = relationship("Department")
+    departments = relationship("Department", secondary=perimeter_departments)
 
 class ACL(Base):
     __tablename__ = 'acls'
