@@ -146,9 +146,56 @@ class TransactionManager:
         Returns:
             Number of ACLs inserted
         """
-        # TODO: Implement ACL insertion
-        logger.info("ACL insertion not yet implemented")
-        return 0
+        try:
+            inserted = 0
+            skipped = 0
+
+            with self.db.session_scope() as session:
+                for acl_data in acls:
+                    try:
+                        # Check if ACL already exists
+                        acl = session.query(ACL).filter_by(user_id=acl_data['user']).first()
+                        
+                        if acl:
+                            logger.debug(f"Skipping duplicate ACL User: {acl_data['user']}")
+                            skipped += 1                            
+                        else:
+                            # Create new ACL
+                            acl = ACL(
+                                user_id=acl_data['user']                                                     
+                            )
+                            if acl_data['access_level'] == 'P':
+                                acl.perimeter_id = acl_data['id']
+                            else:
+                                acl.department_id = acl_data['id']
+                    
+                        # Handle ACL-perimeter association (one per ACL)
+                        '''
+                        perm_id = acl_data['perimeter_id']
+                        if perm_id:
+                            perimeter = session.query(Perimeter).filter_by(id=perm_id).first()
+                            if perimeter:
+                                acl.perimeters.append(perimeter)
+                            else:
+                                logger.warning(f"Perimeter (perimeter_id) {perm_id} not found for ACL {acl_data['id']}")
+                        else:
+                            logger.warning(f"No perimeter_id found for ACL {acl_data['id']}")
+                        '''
+                        
+                        session.add(acl)
+                        inserted += 1
+
+                    except Exception as e:
+                        logger.warning(f"Failed to insert ACL {acl_data}: {e}")
+                        skipped += 1
+                        continue
+            
+            self.inserted_counts['acls'] = inserted
+            logger.info(f"✓ Inserted {inserted} ACLs ({skipped} skipped )")
+            return inserted
+        except Exception as e:
+            logger.error(f"✗ Transaction failed for ACLs: {e}")
+            raise
     
     def get_summary(self) -> str:
         """
