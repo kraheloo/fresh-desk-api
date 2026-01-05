@@ -150,7 +150,7 @@ class CSVLoader:
                     try:
                         acl = {
                             'user': row['User'].strip(),
-                            'access_level': row['AccessLevel'].strip(),
+                            'access_level': 'P' if row['AccessLevel'].strip() == 'Perimeter' else 'D',
                             'id': float(row['Id'])
                         }
                         acls.append(acl)

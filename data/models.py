@@ -30,7 +30,7 @@ class Perimeter(Base):
 
 class ACL(Base):
     __tablename__ = 'acls'
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(String(255), nullable=False)
     perimeter_id = Column(Integer, ForeignKey('perimeters.id'), nullable=True)
     department_id = Column(Float, ForeignKey('departments.id'), nullable=True)
