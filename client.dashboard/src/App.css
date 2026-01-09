@@ -34,6 +34,39 @@
   flex-wrap: wrap;
 }
 
+.user-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.user-selector label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.user-selector select {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.user-selector select:hover {
+  border-color: #646cff;
+}
+
+.user-selector select:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1);
+}
+
 .days-selector {
   display: flex;
   flex-direction: column;
