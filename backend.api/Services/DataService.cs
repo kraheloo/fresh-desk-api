@@ -81,6 +81,9 @@ public class DataService : IDataService
                                             allowedDeptIds.Contains(i.DepartmentId.Value)).ToList();
         }
 
+        // Filter incidents to only include those with recognized statuses (2, 3, 4, 5)
+        incidents = incidents.Where(i => i.Status == 2 || i.Status == 3 || i.Status == 4 || i.Status == 5).ToList();
+
         // Count by status
         // Status codes: 2 = Open, 3 = Pending, 4 = Resolved, 5 = Closed
         var totalOpen = incidents.Count(i => i.Status == 2);
@@ -88,6 +91,8 @@ public class DataService : IDataService
         var totalResolved = incidents.Count(i => i.Status == 4);
         var totalClosed = incidents.Count(i => i.Status == 5);
         var totalOpenAndPending = totalOpen + totalPending;
+        var totalCompleted = totalResolved + totalClosed;
+        var totalInProgress = totalOpen + totalPending;
         
         var totalTickets = incidents.Count;
         var totalResolvedAndClosed = totalResolved + totalClosed;
@@ -118,6 +123,9 @@ public class DataService : IDataService
             TotalResolved = totalResolved,
             TotalClosed = totalClosed,
             TotalOpenAndPending = totalOpenAndPending,
+            TotalCompleted = totalCompleted,
+            TotalInProgress = totalInProgress,
+            TicketsRaised = totalTickets,
             ResolutionRate = Math.Round(resolutionRate, 1),
             Days = days,
             Username = username,
@@ -127,12 +135,17 @@ public class DataService : IDataService
             OldestOpenTickets = oldestOpenIncidents
         };
 
+        // Filter service requests to only include those with recognized statuses (2, 3, 4, 5)
+        serviceRequests = serviceRequests.Where(sr => sr.Status == 2 || sr.Status == 3 || sr.Status == 4 || sr.Status == 5).ToList();
+
         // Count service requests by status
         var srTotalOpen = serviceRequests.Count(sr => sr.Status == 2);
         var srTotalPending = serviceRequests.Count(sr => sr.Status == 3);
         var srTotalResolved = serviceRequests.Count(sr => sr.Status == 4);
         var srTotalClosed = serviceRequests.Count(sr => sr.Status == 5);
         var srTotalOpenAndPending = srTotalOpen + srTotalPending;
+        var srTotalCompleted = srTotalResolved + srTotalClosed;
+        var srTotalInProgress = srTotalOpen + srTotalPending;
         
         var srTotalTickets = serviceRequests.Count;
         var srTotalResolvedAndClosed = srTotalResolved + srTotalClosed;
@@ -162,6 +175,9 @@ public class DataService : IDataService
             TotalResolved = srTotalResolved,
             TotalClosed = srTotalClosed,
             TotalOpenAndPending = srTotalOpenAndPending,
+            TotalCompleted = srTotalCompleted,
+            TotalInProgress = srTotalInProgress,
+            TicketsRaised = srTotalTickets,
             ResolutionRate = Math.Round(srResolutionRate, 1),
             Days = days,
             Username = username,

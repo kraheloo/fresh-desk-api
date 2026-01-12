@@ -15,13 +15,13 @@ function Dashboard({ data, selectedUser, days }) {
       totalResolved,
       totalClosed,
       totalOpenAndPending,
+      totalCompleted,
+      totalInProgress,
+      ticketsRaised,
       resolutionRate,
       accessibleDepartments,
       oldestOpenTickets
     } = metricsData
-
-    const totalTickets = totalOpen + totalPending + totalResolved + totalClosed
-    const openRate = totalTickets > 0 ? ((totalOpenAndPending / totalTickets) * 100).toFixed(1) : 0
 
     return (
       <div className="dashboard" key={sectionKey}>
@@ -39,46 +39,25 @@ function Dashboard({ data, selectedUser, days }) {
 
         <div className="metrics-grid">
           <MetricCard
-            title="Total Tickets"
-            value={totalTickets}
+            title="Tickets Raised"
+            value={ticketsRaised}
             icon="📊"
             color="#646cff"
           />
           <MetricCard
-            title="Open"
-            value={totalOpen}
-            icon="🔵"
-            color="#4287f5"
-            subtitle={`New ${sectionKey}`}
-          />
-          <MetricCard
-            title="Pending"
-            value={totalPending}
-            icon="🟡"
-            color="#ffa500"
-            subtitle="Awaiting action"
-          />
-          <MetricCard
-            title="Resolved"
-            value={totalResolved}
+            title="Completed"
+            value={totalCompleted}
             icon="✅"
             color="#28a745"
-            subtitle="Fixed"
+            subtitle="Resolved + Closed"
           />
           <MetricCard
-            title="Closed"
-            value={totalClosed}
-            icon="🔒"
-            color="#6c757d"
-            subtitle="Completed"
-          />
-          <MetricCard
-            title="Open + Pending"
-            value={totalOpenAndPending}
+            title="In Progress"
+            value={totalInProgress}
             icon="⚠️"
             color="#dc3545"
-            subtitle="Requires attention"
-            highlight={totalOpenAndPending > 0}
+            subtitle="Open + Pending"
+            highlight={totalInProgress > 0}
           />
         </div>
 
@@ -87,7 +66,7 @@ function Dashboard({ data, selectedUser, days }) {
             <h3>Resolution Rate</h3>
             <ResolutionChart
               resolutionRate={resolutionRate}
-              openRate={openRate}
+              openRate={((totalInProgress / ticketsRaised) * 100).toFixed(1)}
             />
             <div className="rate-labels">
               <div className="rate-label">
@@ -96,7 +75,7 @@ function Dashboard({ data, selectedUser, days }) {
               </div>
               <div className="rate-label">
                 <span className="rate-color open"></span>
-                <span>Open/Pending: {openRate}%</span>
+                <span>Open/Pending: {((totalInProgress / ticketsRaised) * 100).toFixed(1)}%</span>
               </div>
             </div>
           </div>
