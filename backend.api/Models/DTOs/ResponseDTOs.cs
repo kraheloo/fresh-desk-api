@@ -41,6 +41,9 @@ public class IncidentCountsResponse
     public int TotalResolved { get; set; }
     public int TotalClosed { get; set; }
     public int TotalOpenAndPending { get; set; }
+    public int TotalCompleted { get; set; }
+    public int TotalInProgress { get; set; }
+    public int TicketsRaised { get; set; }
     public double ResolutionRate { get; set; }
     public int Days { get; set; }
     public string? Username { get; set; }
@@ -60,6 +63,9 @@ public class ServiceCountsResponse
     public int TotalResolved { get; set; }
     public int TotalClosed { get; set; }
     public int TotalOpenAndPending { get; set; }
+    public int TotalCompleted { get; set; }
+    public int TotalInProgress { get; set; }
+    public int TicketsRaised { get; set; }
     public double ResolutionRate { get; set; }
     public int Days { get; set; }
     public string? Username { get; set; }

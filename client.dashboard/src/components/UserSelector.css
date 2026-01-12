@@ -1,9 +1,36 @@
-.selected-user-info {
-  font-size: 0.9rem;
-  color: #888;
-  margin-top: 0.5rem;
+.user-selector-container {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.selected-user-info strong {
-  color: #646cff;
+.user-selector-container select {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.user-selector-container select:hover {
+  border-color: #646cff;
+}
+
+.user-selector-container select:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1);
+}
+
+.selected-user-indicator {
+  position: absolute;
+  right: 1rem;
+  color: #28a745;
+  font-weight: bold;
+  font-size: 1.2rem;
+  pointer-events: none;
 }
