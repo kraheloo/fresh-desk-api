@@ -1,10 +1,16 @@
 import './TicketTable.css'
 
-function TicketTable({ tickets, type }) {
+function TicketTable({ tickets, type, tabType }) {
   if (!tickets || tickets.length === 0) {
+    const tabNames = {
+      'oldest': 'oldest',
+      'in-progress': 'in progress',
+      'completed': 'completed'
+    }
+    const tabName = tabNames[tabType] || 'open'
     return (
       <div className="ticket-table-empty">
-        <p>No open tickets found 🎉</p>
+        <p>No {tabName} tickets found 🎉</p>
       </div>
     )
   }
@@ -24,9 +30,22 @@ function TicketTable({ tickets, type }) {
     return `${Math.floor(diffDays / 365)} years ago`
   }
 
+  const getTableTitle = () => {
+    switch (tabType) {
+      case 'oldest':
+        return `Oldest ${type}`
+      case 'in-progress':
+        return `In Progress ${type}`
+      case 'completed':
+        return `Completed ${type}`
+      default:
+        return `All ${type}`
+    }
+  }
+
   return (
     <div className="ticket-table-container">
-      <h3>Oldest Open {type}</h3>
+      <h3>{getTableTitle()}</h3>
       <table className="ticket-table">
         <thead>
           <tr>

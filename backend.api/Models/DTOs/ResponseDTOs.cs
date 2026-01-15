@@ -51,6 +51,8 @@ public class IncidentCountsResponse
     public DateTime GeneratedAt { get; set; }
     public List<DepartmentAccessDto> AccessibleDepartments { get; set; } = new();
     public List<TicketDto> OldestOpenTickets { get; set; } = new();
+    public List<TicketDto> InProgressTickets { get; set; } = new();
+    public List<TicketDto> CompletedTickets { get; set; } = new();
 }
 
 /// <summary>
@@ -73,6 +75,8 @@ public class ServiceCountsResponse
     public DateTime GeneratedAt { get; set; }
     public List<DepartmentAccessDto> AccessibleDepartments { get; set; } = new();
     public List<TicketDto> OldestOpenTickets { get; set; } = new();
+    public List<TicketDto> InProgressTickets { get; set; } = new();
+    public List<TicketDto> CompletedTickets { get; set; } = new();
 }
 
 /// <summary>

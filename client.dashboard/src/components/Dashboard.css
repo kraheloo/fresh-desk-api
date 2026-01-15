@@ -145,6 +145,40 @@
   transform: translateY(-2px);
 }
 
+.ticket-tabs-section {
+  margin: 2rem 0 1.5rem 0;
+}
+
+.ticket-tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.tab {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: -2px;
+}
+
+.tab:hover {
+  color: #646cff;
+  background: rgba(100, 108, 255, 0.05);
+}
+
+.tab.active {
+  color: #646cff;
+  border-bottom-color: #646cff;
+  background: rgba(100, 108, 255, 0.05);
+}
+
 @media (max-width: 768px) {
   .metrics-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -152,5 +186,14 @@
 
   .charts-section {
     grid-template-columns: 1fr;
+  }
+
+  .ticket-tabs {
+    gap: 0.5rem;
+  }
+
+  .tab {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
 }
