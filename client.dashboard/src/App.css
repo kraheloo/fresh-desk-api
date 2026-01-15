@@ -21,7 +21,7 @@
 }
 
 .subtitle {
-  color: #888;
+  color: #666;
   font-size: 1.1rem;
 }
 
@@ -43,16 +43,16 @@
 .user-selector label {
   font-weight: 500;
   font-size: 0.9rem;
-  color: #888;
+  color: #555;
 }
 
 .user-selector select {
   padding: 0.6rem 1rem;
   font-size: 1rem;
-  border: 1px solid #444;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  background-color: #1a1a1a;
-  color: inherit;
+  background-color: #ffffff;
+  color: #333;
   cursor: pointer;
   transition: border-color 0.3s;
 }
@@ -76,16 +76,16 @@
 .days-selector label {
   font-weight: 500;
   font-size: 0.9rem;
-  color: #888;
+  color: #555;
 }
 
 .days-selector select {
   padding: 0.6rem 1rem;
   font-size: 1rem;
-  border: 1px solid #444;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  background-color: #1a1a1a;
-  color: inherit;
+  background-color: #ffffff;
+  color: #333;
   cursor: pointer;
   transition: border-color 0.3s;
 }
@@ -135,7 +135,7 @@
 .no-data, .welcome {
   text-align: center;
   padding: 4rem 2rem;
-  color: #888;
+  color: #666;
 }
 
 .welcome h2 {
@@ -143,13 +143,4 @@
   margin-bottom: 1rem;
 }
 
-@media (prefers-color-scheme: light) {
-  .days-selector select {
-    background-color: #f9f9f9;
-    border-color: #ddd;
-  }
 
-  .days-selector select:hover {
-    border-color: #646cff;
-  }
-}
