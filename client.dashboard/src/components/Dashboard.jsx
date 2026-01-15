@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import MetricCard from './MetricCard'
 import ResolutionChart from './ResolutionChart'
 import StatusBreakdown from './StatusBreakdown'
@@ -6,6 +7,22 @@ import './Dashboard.css'
 
 function Dashboard({ data, selectedUser, days }) {
   const { incidentCounts, serviceCounts } = data
+  const [activeTab, setActiveTab] = useState('oldest')
+  const [activeSection, setActiveSection] = useState('incidents')
+
+  // Get tickets for the active tab from the API data
+  const getTabTickets = (sectionKey) => {
+    const metricsData = sectionKey === 'incidents' ? data.incidentCounts : data.serviceCounts
+    
+    if (activeTab === 'oldest') {
+      return metricsData.oldestOpenTickets || []
+    } else if (activeTab === 'in-progress') {
+      return metricsData.inProgressTickets || []
+    } else if (activeTab === 'completed') {
+      return metricsData.completedTickets || []
+    }
+    return []
+  }
 
   // Helper function to render metrics section
   const renderMetricsSection = (metricsData, title, sectionKey) => {
@@ -91,9 +108,33 @@ function Dashboard({ data, selectedUser, days }) {
           </div>
         </div>
 
+        <div className="ticket-tabs-section">
+          <div className="ticket-tabs">
+            <button 
+              className={`tab ${activeTab === 'oldest' ? 'active' : ''}`}
+              onClick={() => setActiveTab('oldest')}
+            >
+              🕐 Oldest Tickets
+            </button>
+            <button 
+              className={`tab ${activeTab === 'in-progress' ? 'active' : ''}`}
+              onClick={() => setActiveTab('in-progress')}
+            >
+              📋 In Progress ({metricsData.totalInProgress})
+            </button>
+            <button 
+              className={`tab ${activeTab === 'completed' ? 'active' : ''}`}
+              onClick={() => setActiveTab('completed')}
+            >
+              ✅ Completed ({metricsData.totalCompleted})
+            </button>
+          </div>
+        </div>
+
         <TicketTable 
-          tickets={oldestOpenTickets} 
-          type={sectionKey === 'incidents' ? 'Incidents' : 'Service Requests'} 
+          tickets={getTabTickets(sectionKey)} 
+          type={sectionKey === 'incidents' ? 'Incidents' : 'Service Requests'}
+          tabType={activeTab}
         />
 
         {sectionKey === 'service-requests' && accessibleDepartments && accessibleDepartments.length > 0 && (

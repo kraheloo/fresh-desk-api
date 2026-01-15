@@ -1,4 +1,5 @@
 using ServiceDeskDashboard.API.Services;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 

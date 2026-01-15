@@ -115,6 +115,38 @@ public class DataService : IDataService
             })
             .ToList();
 
+        // Get all in-progress tickets for incidents (status 2 = Open, 3 = Pending)
+        var inProgressIncidents = incidents
+            .Where(i => (i.Status == 2 || i.Status == 3) && i.CreatedAt.HasValue)
+            .OrderBy(i => i.CreatedAt)
+            .Select(i => new TicketDto
+            {
+                Id = i.Id,
+                Subject = i.Subject,
+                Status = i.Status,
+                StatusName = GetStatusName(i.Status),
+                CreatedAt = i.CreatedAt,
+                UpdatedAt = i.UpdatedAt,
+                Url = $"https://{_configuration["FreshService:InstanceUrl"]}/helpdesk/tickets/{i.Id}"
+            })
+            .ToList();
+
+        // Get all completed tickets for incidents (status 4 = Resolved, 5 = Closed)
+        var completedIncidents = incidents
+            .Where(i => (i.Status == 4 || i.Status == 5) && i.CreatedAt.HasValue)
+            .OrderBy(i => i.CreatedAt)
+            .Select(i => new TicketDto
+            {
+                Id = i.Id,
+                Subject = i.Subject,
+                Status = i.Status,
+                StatusName = GetStatusName(i.Status),
+                CreatedAt = i.CreatedAt,
+                UpdatedAt = i.UpdatedAt,
+                Url = $"https://{_configuration["FreshService:InstanceUrl"]}/helpdesk/tickets/{i.Id}"
+            })
+            .ToList();
+
         var dataMetrics = new DataMetricsResponse();
         dataMetrics.IncidentCounts = new IncidentCountsResponse
         {
@@ -132,7 +164,9 @@ public class DataService : IDataService
             DepartmentFilterApplied = allowedDeptIds != null && allowedDeptIds.Any(),
             GeneratedAt = DateTime.UtcNow,
             AccessibleDepartments = accessibleDepartments,
-            OldestOpenTickets = oldestOpenIncidents
+            OldestOpenTickets = oldestOpenIncidents,
+            InProgressTickets = inProgressIncidents,
+            CompletedTickets = completedIncidents
         };
 
         // Filter service requests to only include those with recognized statuses (2, 3, 4, 5)
@@ -168,6 +202,38 @@ public class DataService : IDataService
             })
             .ToList();
 
+        // Get all in-progress tickets for service requests (status 2 = Open, 3 = Pending)
+        var inProgressServiceRequests = serviceRequests
+            .Where(sr => (sr.Status == 2 || sr.Status == 3) && sr.CreatedAt.HasValue)
+            .OrderBy(sr => sr.CreatedAt)
+            .Select(sr => new TicketDto
+            {
+                Id = sr.Id,
+                Subject = sr.Subject,
+                Status = sr.Status,
+                StatusName = GetStatusName(sr.Status),
+                CreatedAt = sr.CreatedAt,
+                UpdatedAt = sr.UpdatedAt,
+                Url = $"https://{_configuration["FreshService:InstanceUrl"]}/helpdesk/tickets/{sr.Id}"
+            })
+            .ToList();
+
+        // Get all completed tickets for service requests (status 4 = Resolved, 5 = Closed)
+        var completedServiceRequests = serviceRequests
+            .Where(sr => (sr.Status == 4 || sr.Status == 5) && sr.CreatedAt.HasValue)
+            .OrderBy(sr => sr.CreatedAt)
+            .Select(sr => new TicketDto
+            {
+                Id = sr.Id,
+                Subject = sr.Subject,
+                Status = sr.Status,
+                StatusName = GetStatusName(sr.Status),
+                CreatedAt = sr.CreatedAt,
+                UpdatedAt = sr.UpdatedAt,
+                Url = $"https://{_configuration["FreshService:InstanceUrl"]}/helpdesk/tickets/{sr.Id}"
+            })
+            .ToList();
+
         dataMetrics.ServiceCounts = new ServiceCountsResponse
         {
             TotalOpen = srTotalOpen,
@@ -184,7 +250,9 @@ public class DataService : IDataService
             DepartmentFilterApplied = allowedDeptIds != null && allowedDeptIds.Any(),
             GeneratedAt = DateTime.UtcNow,
             AccessibleDepartments = accessibleDepartments,
-            OldestOpenTickets = oldestOpenServiceRequests
+            OldestOpenTickets = oldestOpenServiceRequests,
+            InProgressTickets = inProgressServiceRequests,
+            CompletedTickets = completedServiceRequests
         };
 
         return dataMetrics;
