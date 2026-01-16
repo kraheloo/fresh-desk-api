@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ServiceDeskDashboard.API.Services;
 
-public interface ICsvDataService
+public interface IDataProvider
 {
     List<Department> GetDepartments();
     List<Perimeter> GetPerimeters();
@@ -15,7 +15,7 @@ public interface ICsvDataService
     HashSet<long> GetAllowedDepartmentIds(string username);
 }
 
-public class CsvDataService : ICsvDataService
+public class CsvDataService : IDataProvider
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<CsvDataService> _logger;

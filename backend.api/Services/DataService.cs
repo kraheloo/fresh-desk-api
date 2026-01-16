@@ -11,18 +11,18 @@ public interface IDataService
 public class DataService : IDataService
 {
     private readonly IFreshServiceClient _freshServiceClient;
-    private readonly ICsvDataService _csvDataService;
+    private readonly IDataProvider _dataProvider;
     private readonly ILogger<DataService> _logger;
     private readonly IConfiguration _configuration;
 
     public DataService(
         IFreshServiceClient freshServiceClient,
-        ICsvDataService csvDataService,
+        IDataProvider dataProvider,
         ILogger<DataService> logger,
         IConfiguration configuration)
     {
         _freshServiceClient = freshServiceClient;
-        _csvDataService = csvDataService;
+        _dataProvider = dataProvider;
         _logger = logger;
         _configuration = configuration;
     }
@@ -37,11 +37,11 @@ public class DataService : IDataService
 
         if (!string.IsNullOrEmpty(username))
         {
-            allowedDeptIds = _csvDataService.GetAllowedDepartmentIds(username);
+            allowedDeptIds = _dataProvider.GetAllowedDepartmentIds(username);
             
             if (allowedDeptIds.Any())
             {
-                var departments = _csvDataService.GetDepartments();
+                var departments = _dataProvider.GetDepartments();
                 accessibleDepartments = departments
                     .Where(d => allowedDeptIds.Contains(d.Id))
                     .Select(d => new DepartmentAccessDto
