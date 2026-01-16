@@ -14,14 +14,24 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+            policy.WithOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:5000")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
 });
 
 // Register services
-builder.Services.AddSingleton<ICsvDataService, CsvDataService>();
+var useDatabase = builder.Configuration.GetValue<bool>("Database:UseDatabase");
+
+if (useDatabase)
+{
+    builder.Services.AddSingleton<IDataProvider, DBDataService>();
+}
+else
+{
+    builder.Services.AddSingleton<IDataProvider, CsvDataService>();
+}
+
 builder.Services.AddHttpClient<IFreshServiceClient, FreshServiceClient>();
 builder.Services.AddScoped<IDataService, DataService>();
 
@@ -34,8 +44,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthorization();
 app.MapControllers();
 

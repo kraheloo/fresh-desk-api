@@ -8,12 +8,12 @@ namespace ServiceDeskDashboard.API.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly ICsvDataService _csvDataService;
+    private readonly IDataProvider _dataProvider;
     private readonly ILogger<UsersController> _logger;
 
-    public UsersController(ICsvDataService csvDataService, ILogger<UsersController> logger)
+    public UsersController(IDataProvider dataProvider, ILogger<UsersController> logger)
     {
-        _csvDataService = csvDataService;
+        _dataProvider = dataProvider;
         _logger = logger;
     }
 
@@ -22,7 +22,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var users = _csvDataService.GetAllUsers();
+            var users = _dataProvider.GetAllUsers();
             var userDtos = users.Select(u => new UserDto { Username = u }).ToList();
             
             _logger.LogInformation("Retrieved {Count} users", userDtos.Count);
